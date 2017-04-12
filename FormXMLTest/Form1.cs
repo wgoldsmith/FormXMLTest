@@ -102,7 +102,7 @@ namespace FormXMLTest
 
 
 
-            label1.Text = DateTime.Now.ToShortTimeString();
+            label1.Text = DateTime.Now.Hour.ToString();
             label1.AutoSize = true;
         }
     }

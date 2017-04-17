@@ -86,13 +86,18 @@ namespace FormXMLTest
                             if (reader.Name.Equals("printer"))
                             {
                                 this.containerList.Add(key, new Panel());
+
                                 this.printerList.Add(key, new Label());
                                 this.printerList[key].Text = reader.GetAttribute("name");
+                                this.printerList[key].Name = "printerLabel"+key;
+                                this.printerList[key].AutoSize = true;
                             }
                             else if (reader.Name.Equals("user"))
                             {
                                 this.ndtList.Add(key, new Label());
                                 this.ndtList[key].Text = "Last changed by: " + reader.ReadElementContentAsString();
+                                this.ndtList[key].Name = "ntdLabel" + key;
+                                this.ndtList[key].AutoSize = true;
                             }
 
                             // month and hour are both preceded by " - "
@@ -113,15 +118,22 @@ namespace FormXMLTest
                                 this.colorBoxList.Add(key, new Panel());
                                 this.colorBoxList[key].BorderStyle = BorderStyle.Fixed3D;
                                 this.colorBoxList[key].Size = new Size(35, 25);
+                                this.colorBoxList[key].Name = "colorBox" + key;
 
                                 this.mylarList.Add(key, new RadioButton());
                                 this.mylarList[key].Text = "Mylar";
+                                this.mylarList[key].Name = "mylarButton" + key;
+                                this.mylarList[key].AutoSize = true;
 
                                 this.paperList.Add(key, new RadioButton());
                                 this.paperList[key].Text = "Paper";
+                                this.paperList[key].Name = "paperButton" + key;
+                                this.paperList[key].AutoSize = true;
 
                                 this.otherList.Add(key, new RadioButton());
                                 this.otherList[key].Text = "Other";
+                                this.otherList[key].Name = "otherButton" + key;
+                                this.otherList[key].AutoSize = true;
 
                                 SetRoll(reader.ReadElementContentAsString(), key);
                             }
@@ -138,8 +150,6 @@ namespace FormXMLTest
                     }                   
                 }
             }
-
-            this.paperStatGroupBox.Height = (41 * key) + 15;
         }
 
         /// <summary>
@@ -166,14 +176,39 @@ namespace FormXMLTest
             }
         }
 
-        private void PlaceContainerPanel(int key)
+        /// <summary>
+        /// Places container panels in the group box and spaces each one 41 spaces from the last one
+        /// </summary>
+        private void PlaceContainerPanel(int key, int spacer)
         {
-
+            // On the first entry the key will be 0, so container will be placed at 5, 15
+            // On all others the container will be placed 41 spaces lower than the previous container
+            this.containerList[key].Location = new Point(5, 20 + (key * spacer));
+            this.containerList[key].Size = new Size(this.paperStatGroupBox.Width - 10, spacer);
+            this.paperStatGroupBox.Controls.Add(this.containerList[key]);  
         }
 
         private void PlaceInContainer(int key)
         {
-            
+            this.colorBoxList[key].Parent = this.containerList[key];
+            this.colorBoxList[key].Location = new Point(0, 0);
+            ////this.containerList[key].Controls.Add(this.colorBoxList[key]);
+            ////this.containerList[key].Controls.Find("colorBox" + key, true).;
+
+            this.printerList[key].Location = new Point(37, 6);
+            this.containerList[key].Controls.Add(this.printerList[key]);
+
+            this.mylarList[key].Location = new Point(142, 4);
+            this.containerList[key].Controls.Add(this.mylarList[key]);
+
+            this.paperList[key].Location = new Point(198, 4);
+            this.containerList[key].Controls.Add(this.paperList[key]);
+
+            this.otherList[key].Location = new Point(257, 4);
+            this.containerList[key].Controls.Add(this.otherList[key]);
+
+            this.ndtList[key].Location = new Point(2, 25);
+            this.containerList[key].Controls.Add(this.ndtList[key]);
         }
 
         /// <summary>
@@ -183,43 +218,27 @@ namespace FormXMLTest
         {
             this.ReadXML();
 
-            Label temp = new Label();
-
-            temp.Location = new Point(25, 15);
-            temp.Name = "temp";
-            temp.TabIndex = 1;
-            temp.Text = "tempttt"; // + printerList[1].Text;
-            if (this.ndtList.ContainsKey(1))
-            {
-                temp.Text = ">>>" + this.ndtList[1].Text + "<<<";
-            }
-           
-            temp.AutoSize = true;
-
-            this.printerList[1].Location = new Point(5, 56);
-
-            this.paperStatGroupBox.Controls.Add(temp);
-            this.paperStatGroupBox.Controls.Add(this.printerList[1]);
+            int spacer = 41; // the amount of space between each container panel
 
             // interate through container panels, place them in group box, and place controllers inside.
             // if there are no container panels, nothing will happen.
             for (int key = 0; key < this.containerList.Count; key++)
             {
-                PlaceContainerPanel(key);
                 PlaceInContainer(key);
+
+                PlaceContainerPanel(key, spacer);
+
+                // -------------------------top spacer + (spacer * # of container boxes) + bottom spacer
+                this.paperStatGroupBox.Height = 15 + (spacer * this.containerList.Count) + 10;
             }
 
-            // -------------------------------------keep same X location,     top of groupBox           +         height = bottom of box. + 20 for some space between box and button.
+            // -------------------------------------keep same X location,     top of groupBox         +    height = bottom of box. + 20 for some space between box and button.
             this.buttonOk.Location = new Point(this.buttonOk.Location.X, this.paperStatGroupBox.Location.Y + this.paperStatGroupBox.Height + 20);
             this.buttonCancel.Location = new Point(this.buttonCancel.Location.X, this.paperStatGroupBox.Location.Y + this.paperStatGroupBox.Height + 20);
 
-            RadioButton radBut = new RadioButton();
-            radBut.Text = "Stuff";
-            radBut.Checked = true;
-            this.paperStatGroupBox.Controls.Add(radBut);
 
-            label1.Text = DateTime.Now.Hour.ToString();
-            label1.AutoSize = true;
+            ////label1.Text = DateTime.Now.Hour.ToString();
+            ////label1.AutoSize = true;
         }
 
         /// <summary>
